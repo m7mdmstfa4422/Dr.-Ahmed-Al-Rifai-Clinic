@@ -1,0 +1,4 @@
+user 
+developer
+pass
+DevClinic!2026

@@ -1,0 +1,15 @@
+{
+  "name": "عيادة د. أحمد الرفاعي",
+  "short_name": "عيادتي",
+  "description": "نظام ذكي لإدارة العيادات والمرضى.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "icons": [
+    { "src": "/logo.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
