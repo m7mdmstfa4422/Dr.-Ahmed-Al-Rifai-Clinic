@@ -112,17 +112,7 @@ export default function Topbar({ onMenuClick }) {
       <div className="flex items-center gap-3 sm:gap-5">
         
         {/* العرض الحي للوقت والتاريخ (بديل الإشعارات) */}
-        <div className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-3.5 py-2 shadow-2xs backdrop-blur-md">
-          <Clock size={16} className="text-sky-600 animate-pulse" />
-          <div className="flex flex-col text-right leading-none">
-            <span className="text-xs font-extrabold text-slate-800 tracking-wide font-mono">
-              {formattedTime}
-            </span>
-            <span className="mt-1 text-[10px] font-semibold text-slate-400">
-              {formattedDate}
-            </span>
-          </div>
-        </div>
+        
 
         <div className="h-8 w-px bg-slate-200/80 hidden sm:block" />
 
