@@ -162,29 +162,33 @@ export default function Settings() {
 
       <div className="mx-auto max-w-6xl space-y-8">
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white p-8 shadow-sm"
-        >
-          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-sky-100/60 blur-2xl"></div>
-          <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-blue-100/50 blur-2xl"></div>
+       <motion.header
+  initial={{ opacity: 0, y: -15 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4 }}
+  className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 p-6 text-white shadow-xl shadow-sky-900/15 md:p-8"
+>
+  {/* إضاءات الخلفية التدرجية */}
+  <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
+  <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" />
 
-          <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">
-                <Sparkles className="h-3.5 w-3.5 text-sky-600" /> النظام الطبي الذكي
-              </div>
-              <h1 className="mt-2 text-2xl font-black text-slate-900 md:text-3xl">
-                إدارة المراكز والعيادات والصلاحيات
-              </h1>
-              <p className="mt-1 text-sm text-slate-500">
-                لوحة التحكم المركزية بالصلاحيات الطبية والسحابية
-              </p>
-            </div>
-          </div>
-        </motion.header>
+  <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div>
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-md">
+        <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+        <span>النظام الطبي الذكي</span>
+      </div>
+
+      <h1 className="mt-3 text-2xl font-black tracking-tight text-white md:text-3xl">
+        إدارة المراكز والعيادات والصلاحيات
+      </h1>
+
+      <p className="mt-1.5 max-w-xl text-xs text-sky-100/90 md:text-sm">
+        لوحة التحكم المركزية بالصلاحيات الطبية والسحابية
+      </p>
+    </div>
+  </div>
+</motion.header>
 
         {/* Add Clinic Section */}
         <motion.section

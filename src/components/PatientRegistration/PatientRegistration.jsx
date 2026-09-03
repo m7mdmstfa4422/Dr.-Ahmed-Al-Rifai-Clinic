@@ -1,19 +1,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  UserPlus, 
-  User, 
-  Calendar, 
-  Phone, 
-  Globe2, 
-  CreditCard, 
-  Building2, 
-  FileText, 
-  Wallet, 
-  Check, 
-  AlertCircle, 
-  X, 
-  Loader2, 
+import {
+  UserPlus,
+  User,
+  Calendar,
+  Phone,
+  Globe2,
+  CreditCard,
+  Building2,
+  FileText,
+  Check,
+  AlertCircle,
+  X,
+  Loader2,
   Sparkles,
   ChevronDown
 } from 'lucide-react';
@@ -23,23 +22,22 @@ import { api } from '../../api';
 const REGEX = {
   // اسم ثلاثي على الأقل (عربي فقط أو إنجليزي فقط مع مسافات فاصلة)
   NAME: /^([\u0621-\u064A]{2,}\s+[\u0621-\u064A]{2,}\s+[\u0621-\u064A]{2,}(\s+[\u0621-\u064A]{2,})*|[a-zA-Z]{2,}\s+[a-zA-Z]{2,}\s+[a-zA-Z]{2,}(\s+[a-zA-Z]{2,})*)$/,
-  // الرقم القومي: 14 رقم بالضبط (اختياري، أو 14 رقم إذا تم إدخاله)
+  // الرقم القومي: 14 رقم بالضبط
   NATIONAL_ID: /^[0-9]{14}$/,
-  // رقم هاتف دولي ومحلي يدعم مفاتيح الدول (+ / 00) وأرقام من 7 إلى 15 خانة
+  // رقم هاتف يدعم الأرقام الدولية والمحلية
   INTERNATIONAL_PHONE: /^(\+|00)?[0-9\s\-()]{7,20}$/
 };
 
-const initialForm = { 
-  fullName: '', 
-  age: '', 
-  gender: 'ذكر', 
-  nationality: 'مصري', 
-  nationalId: '', 
-  birthDate: '', 
-  phone: '', 
-  medicalNotes: '', 
-  clinic: '', 
-  initialFee: '' 
+// النموذج خالي تماماً من أي حقول زيارات أو رسوم
+const initialForm = {
+  fullName: '',
+  age: '',
+  gender: 'ذكر',
+  nationality: 'مصري',
+  nationalId: '',
+  phone: '',
+  clinic: '',
+  medicalNotes: ''
 };
 
 // Custom Toast Hook لإدارة التنبيهات
@@ -88,9 +86,8 @@ function useToast() {
   return { showToast, ToastContainer };
 }
 
-const inputClass = (hasError) => 
-  `w-full text-sm px-3.5 py-3 bg-slate-50/60 border ${
-    hasError ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-100' : 'border-slate-200 focus:border-sky-600 focus:ring-sky-100'
+const inputClass = (hasError) =>
+  `w-full text-sm px-3.5 py-3 bg-slate-50/60 border ${hasError ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-100' : 'border-slate-200 focus:border-sky-600 focus:ring-sky-100'
   } rounded-2xl text-slate-800 placeholder-slate-400 outline-none transition-all focus:bg-white focus:ring-2`;
 
 export default function PatientRegistration() {
@@ -173,7 +170,6 @@ export default function PatientRegistration() {
   const submit = async (event) => {
     event.preventDefault();
 
-    // التحقق من كافة الحقول المشروطة
     const isNameValid = validateField('fullName', form.fullName);
     const isAgeValid = validateField('age', form.age);
     const isPhoneValid = validateField('phone', form.phone);
@@ -186,20 +182,24 @@ export default function PatientRegistration() {
 
     setLoading(true);
     try {
-      await api('/patients', { 
-        method: 'POST', 
-        body: JSON.stringify({ 
-          ...form, 
+      // إرسال بيانات ملف المريض فقط دون أي زيارات
+      await api('/patients', {
+        method: 'POST',
+        body: JSON.stringify({
           fullName: form.fullName.trim(),
           age: Number(form.age),
-          phone: form.phone.trim(),
+          gender: form.gender,
+          nationality: form.nationality.trim(),
           nationalId: form.nationalId.trim() || undefined,
-          initialFee: Number(form.initialFee || 0)
-        }) 
+          phone: form.phone.trim(),
+          clinic: form.clinic || undefined,
+          medicalNotes: form.medicalNotes.trim() || ''
+        })
       });
+
       setForm({ ...initialForm, clinic: clinics[0]?._id || '' });
       setErrors({});
-      showToast('✨ تم تسجيل بيانات المريض بنجاح وفق المعايير');
+      showToast('✨ تم تسجيل ملف المريض بنجاح في قاعدة البيانات');
     } catch (error) {
       if (error.field === 'nationalId') setErrors((prev) => ({ ...prev, nationalId: error.message }));
       showToast(error.message || 'تعذر حفظ البيانات. تأكد من تشغيل الخادم.', 'error');
@@ -218,29 +218,25 @@ export default function PatientRegistration() {
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white p-6 shadow-sm md:p-8"
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 p-6 text-white shadow-xl shadow-sky-900/15 md:p-8"
         >
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-sky-200/50 blur-3xl"
-          />
-          <motion.div 
-            animate={{ scale: [1, 1.25, 1], opacity: [0.2, 0.45, 0.2] }}
-            transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-200/40 blur-3xl"
-          />
+          {/* إضاءات الخلفية التدرجية */}
+          <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" />
 
           <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">
-                <Sparkles className="h-3.5 w-3.5 text-sky-600" /> تسجيل السجلات الطبية
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-md">
+                <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+                <span>تسجيل السجلات الطبية</span>
               </div>
-              <h1 className="mt-2 text-2xl font-black text-slate-900 md:text-3xl">
+
+              <h1 className="mt-3 text-2xl font-black tracking-tight text-white md:text-3xl">
                 إضافة ملف مريض جديد
               </h1>
-              <p className="mt-1 text-xs text-slate-500 md:text-sm">
-                تسجيل البيانات الشخصية والطبية مع التحقق التلقائي من صحة المدخلات
+
+              <p className="mt-1.5 max-w-xl text-xs text-sky-100/90 md:text-sm">
+                تسجيل البيانات الشخصية والطبية للمريض فقط دون فتح زيارة كشف
               </p>
             </div>
           </div>
@@ -264,39 +260,39 @@ export default function PatientRegistration() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Field label="اسم المريض ثلاثي " icon={User} error={errors.fullName}>
-                <input 
-                  required 
-                  name="fullName" 
-                  value={form.fullName} 
-                  onChange={update} 
+              <Field label="اسم المريض ثلاثي" icon={User} error={errors.fullName}>
+                <input
+                  required
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={update}
                   onBlur={handleBlur}
-                  placeholder="مثال: أحمد محمد عبد الرحمن / John David Smith" 
-                  className={inputClass(!!errors.fullName)} 
+                  placeholder="مثال: أحمد محمد عبد الرحمن"
+                  className={inputClass(!!errors.fullName)}
                 />
               </Field>
 
-              <Field label="العمر " icon={Calendar} error={errors.age}>
-                <input 
-                  required 
-                  name="age" 
-                  value={form.age} 
-                  onChange={update} 
+              <Field label="العمر" icon={Calendar} error={errors.age}>
+                <input
+                  required
+                  name="age"
+                  value={form.age}
+                  onChange={update}
                   onBlur={handleBlur}
-                  type="number" 
-                  min="0" 
-                  max="99" 
-                  placeholder="مثال: 32" 
-                  className={inputClass(!!errors.age)} 
+                  type="number"
+                  min="0"
+                  max="99"
+                  placeholder="مثال: 32"
+                  className={inputClass(!!errors.age)}
                 />
               </Field>
 
               <Field label="الجنس" icon={User}>
                 <div className="relative">
-                  <select 
-                    name="gender" 
-                    value={form.gender} 
-                    onChange={update} 
+                  <select
+                    name="gender"
+                    value={form.gender}
+                    onChange={update}
                     className={`${inputClass(false)} appearance-none pr-3.5 pl-10`}
                   >
                     <option value="ذكر">ذكر</option>
@@ -307,40 +303,37 @@ export default function PatientRegistration() {
               </Field>
 
               <Field label="الجنسية" icon={Globe2}>
-                <input 
-                  required 
-                  name="nationality" 
-                  value={form.nationality} 
-                  onChange={update} 
-                  placeholder="مثال: مصري، سعودي، أردني..." 
-                  className={inputClass(false)} 
+                <input
+                  required
+                  name="nationality"
+                  value={form.nationality}
+                  onChange={update}
+                  placeholder="مثال: مصري، سعودي..."
+                  className={inputClass(false)}
                 />
               </Field>
 
               <Field label="الرقم القومي (14 رقم)" icon={CreditCard} error={errors.nationalId}>
-                <input 
-                  name="nationalId" 
-                  value={form.nationalId} 
-                  onChange={update} 
+                <input
+                  name="nationalId"
+                  value={form.nationalId}
+                  onChange={update}
                   onBlur={handleBlur}
-                  placeholder="14 رقم قومي" 
+                  placeholder="14 رقم قومي (اختياري)"
                   maxLength={14}
-                  className={inputClass(!!errors.nationalId)} 
+                  className={inputClass(!!errors.nationalId)}
                 />
               </Field>
 
-             
-
-              <Field label="العيادة المستهدفة" icon={Building2}>
+              <Field label="العيادة التابع لها المريض" icon={Building2}>
                 <div className="relative">
                   <select
-                    required
                     name="clinic"
                     value={form.clinic}
                     onChange={update}
                     className={`${inputClass(false)} appearance-none pr-3.5 pl-10`}
                   >
-                    <option value="" disabled>اختر العيادة...</option>
+                    <option value="">اختر العيادة (اختياري)...</option>
                     {clinics.map((clinic) => (
                       <option key={clinic._id} value={clinic._id}>
                         {clinic.name}
@@ -349,19 +342,6 @@ export default function PatientRegistration() {
                   </select>
                   <ChevronDown className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                 </div>
-              </Field>
-
-              <Field label="قيمة الكشف الأولي (ج)" icon={Wallet}>
-                <input 
-                  required 
-                  name="initialFee" 
-                  value={form.initialFee} 
-                  onChange={update} 
-                  type="number" 
-                  min="0" 
-                  placeholder="0" 
-                  className={inputClass(false)} 
-                />
               </Field>
             </div>
           </section>
@@ -376,17 +356,17 @@ export default function PatientRegistration() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Field label="رقم الهاتف (دولي أو محلي)" icon={Phone} error={errors.phone}>
-                <input 
-                  required 
-                  name="phone" 
-                  value={form.phone} 
-                  onChange={update} 
+              <Field label="رقم الهاتف" icon={Phone} error={errors.phone}>
+                <input
+                  required
+                  name="phone"
+                  value={form.phone}
+                  onChange={update}
                   onBlur={handleBlur}
-                  type="tel" 
-                  placeholder="+201xxxxxxxxx / 05xxxxxxx" 
-                  className={inputClass(!!errors.phone)} 
-                  dir="ltr" 
+                  type="tel"
+                  placeholder="+201xxxxxxxxx / 01xxxxxxxxx"
+                  className={inputClass(!!errors.phone)}
+                  dir="ltr"
                 />
               </Field>
             </div>
@@ -398,18 +378,18 @@ export default function PatientRegistration() {
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-sky-700 border border-sky-100">
                 <FileText className="h-4 w-4" />
               </div>
-              <span>البيانات والملاحظات الطبية</span>
+              <span>الملاحظات الطبية والتاريخ المرضي</span>
             </div>
 
             <div>
-              <Field label="ملاحظات طبية أولية (حساسية، أمراض مزمنة، شكوى رئيسية)">
-                <textarea 
-                  name="medicalNotes" 
-                  value={form.medicalNotes} 
-                  onChange={update} 
-                  rows={3} 
-                  placeholder="اكتب هنا أي تفاصيل طبية أولية للمريض..." 
-                  className={inputClass(false)} 
+              <Field label="الملاحظات الطبية الأولية (حساسية، أمراض مزمنة)">
+                <textarea
+                  name="medicalNotes"
+                  value={form.medicalNotes}
+                  onChange={update}
+                  rows={3}
+                  placeholder="اكتب هنا أي تفاصيل أو أمراض مزمنة تخص ملف المريض..."
+                  className={inputClass(false)}
                 />
               </Field>
             </div>
@@ -429,7 +409,7 @@ export default function PatientRegistration() {
               ) : (
                 <UserPlus className="h-4 w-4" />
               )}
-              <span>حفظ وتسجيل المريض</span>
+              <span>حفظ ملف المريض فقط</span>
             </motion.button>
           </div>
         </motion.form>

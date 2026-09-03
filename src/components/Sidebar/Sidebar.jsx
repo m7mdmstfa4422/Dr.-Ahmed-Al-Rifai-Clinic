@@ -1,205 +1,252 @@
+'use client';
+
+import { useContext, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from '../../AuthProvider';
 import { SubscriptionContext } from '../../SubscriptionProvider';
-import img from '../../assets/logo.png';
+import { SystemContext } from '../../SystemProvider';
+import { api } from '../../api';
 
 import {
+  CalendarDays,
+  ChevronLeft,
   FileText,
   LayoutDashboard,
+  LogOut,
+  Menu,
   Settings,
+  ShieldCheck,
+  Sparkles,
   UserPlus,
   Users,
   Wallet,
   X,
-  Sparkles,
-  LogOut,
-  ChevronLeft,
-  ShieldCheck
 } from 'lucide-react';
 
 const sidebarItems = [
-  { name: 'الرئيسية', path: '/', icon: LayoutDashboard },
-  { name: 'المرضى', path: '/search', icon: Users },
-  { name: 'إضافة مريض', path: '/register', icon: UserPlus },
-  { name: 'التقارير', path: '/reports', icon: FileText },
-  { name: 'الحسابات', path: '/finance', icon: Wallet },
-  { name: 'الإعدادات', path: '/settings', icon: Settings },
+  { name: 'الرئيسية', path: '/', icon: LayoutDashboard, label: 'نظرة عامة' },
+  { name: 'المرضى', path: '/search', icon: Users, label: 'إدارة المرضى' },
+  { name: 'إضافة مريض', path: '/register', icon: UserPlus, label: 'تسجيل جديد' },
+  { name: 'المواعيد', path: '/appointments', icon: CalendarDays, label: 'جدول اليوم' },
+  { name: 'التقارير', path: '/reports', icon: FileText, label: 'التحليلات' },
+  { name: 'الحسابات', path: '/finance', icon: Wallet, label: 'المدفوعات' },
+  { name: 'الإعدادات', path: '/settings', icon: Settings, label: 'تخصيص النظام' },
 ];
 
-export default function Sidebar({ open, onClose }) {
+function PulseLogo() {
+  return (
+    <motion.div
+      className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-teal-500 via-cyan-500 to-sky-500 shadow-md shadow-cyan-500/20"
+      whileHover={{ scale: 1.05 }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent" />
+      <motion.svg viewBox="0 0 64 36" className="relative h-5 w-8" fill="none" aria-label="نبض صحي">
+        <motion.path
+          d="M2 19h11l4-9 7 19 7-25 7 15h10l4-6 4 6h6"
+          stroke="white"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0.15, opacity: 0.55 }}
+          animate={{ pathLength: [0.15, 1, 0.15], opacity: [0.55, 1, 0.55] }}
+          transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+export default function Sidebar({ open, onClose, mobileOpen, setMobileOpen }) {
   const { admin, logout } = useContext(AuthContext);
   const { subscription } = useContext(SubscriptionContext);
+  const { clinicName } = useContext(SystemContext);
+  const [liveCounts, setLiveCounts] = useState({ patients: null, appointments: null });
 
-  const visibleItems = sidebarItems.filter(
-    (item) => !['/finance', '/reports', '/settings'].includes(item.path) || admin?.username === 'drahmed' || admin?.role === 'developer'
-  );
+  const isOpen = mobileOpen ?? open;
+  const close = () => {
+    onClose?.();
+    setMobileOpen?.(false);
+  };
+
+  const hasPermission = (permission) => admin?.role === 'developer' || admin?.permissions?.includes(permission) || (admin?.role === 'admin' && ['patients', 'appointments'].includes(permission));
+  const requiredPermission = { '/appointments': 'appointments', '/reports': 'reports', '/finance': 'finance', '/settings': 'settings' };
+  // تظهر كل صفحة فقط للحسابات التي منحها المطوّر هذه الصلاحية.
+  const visibleItems = sidebarItems.filter((item) => !requiredPermission[item.path] || hasPermission(requiredPermission[item.path]));
+
+  useEffect(() => {
+    let mounted = true;
+    const today = new Date().toISOString().slice(0, 10);
+    Promise.all([
+      api('/patients').catch(() => []),
+      hasPermission('appointments') ? api(`/appointments?date=${today}`).catch(() => []) : Promise.resolve([]),
+    ]).then(([patients, appointments]) => {
+      if (mounted) setLiveCounts({ patients: Array.isArray(patients) ? patients.length : 0, appointments: Array.isArray(appointments) ? appointments.length : 0 });
+    });
+    return () => { mounted = false; };
+  }, [admin]);
 
   return (
     <>
       {/* خلفية التعتيم للشاشات الصغيرة */}
       <AnimatePresence>
-        {open && (
+        {isOpen && (
           <motion.div
+            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-xs lg:hidden"
+            onClick={close}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-slate-900/25 backdrop-blur-sm lg:hidden"
-            aria-hidden="true"
           />
         )}
       </AnimatePresence>
 
-      {/* الشريط الجانبي */}
+      {/* الحاوية الجانبية: ثابتة في الشاشات الكبيرة ومتجاوبة في الموبايل */}
       <aside
-        className={`fixed inset-y-0 right-0 z-50 flex w-72 flex-col justify-between border-l border-sky-100/80 bg-white/90 p-5 shadow-2xl shadow-sky-950/5 backdrop-blur-2xl transition-transform duration-300 ease-out lg:translate-x-0 lg:shadow-none ${open ? 'translate-x-0' : 'translate-x-full'
-          }`}
         dir="rtl"
+        className={`fixed inset-y-0 right-0 z-50 flex h-screen w-64 shrink-0 flex-col border-l border-slate-200 bg-white p-3.5 text-slate-800 shadow-2xl transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:z-30 lg:translate-x-0 lg:shadow-none ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
-        <div className="space-y-6">
-          {/* هيدر الشريط الجانبي */}
-          <div className="relative overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/70 to-white p-3.5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div>
-                  <img src={img} alt="Clinic Logo" className="h-12 w-16   object-center " />
-                </div>
-                <div>
-                  <h1 className="text-sm font-black text-slate-900 tracking-tight">
-                    عيادة د. أحمد الرفاعي
-                  </h1>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700">
-                    <Sparkles size={10} /> نظام طبي ذكي
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl p-1.5 text-slate-400 transition-colors hover:bg-white hover:text-slate-700 lg:hidden"
-                aria-label="إغلاق القائمة"
-              >
-                <X size={18} />
-              </button>
+        {/* الترويسة والشعار */}
+        <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 p-2.5 shadow-md shadow-sky-900/15">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <PulseLogo />
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-sm font-black tracking-tight text-white">
+                {clinicName}
+              </h1>
+              <p className="flex items-center gap-1 text-[10px] font-bold text-cyan-200">
+                <Sparkles className="size-2.5" /> نظام طبي ذكي
+              </p>
             </div>
           </div>
-
-          {/* روابط التنقل */}
-          <nav className="space-y-1.5">
-            <div className="px-3 pb-1 text-[11px] font-bold tracking-wider text-slate-400">
-              القائمة الرئيسية
-            </div>
-
-            {visibleItems.map(({ name, path, icon: Icon }) => (
-              <NavLink
-                end={path === '/'}
-                key={path}
-                to={path}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `group relative flex items-center justify-between overflow-hidden rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 ${isActive
-                    ? 'border border-sky-200 bg-sky-50/80 text-sky-800 shadow-sm shadow-sky-100'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${isActive
-                          ? 'bg-sky-600 text-white shadow-sm shadow-sky-500/30'
-                          : 'bg-slate-100/70 text-slate-500 group-hover:bg-sky-100/60 group-hover:text-sky-700'
-                          }`}
-                      >
-                        <Icon size={17} className="stroke-[2.2]" />
-                      </div>
-                      <span>{name}</span>
-                    </div>
-
-                    <ChevronLeft
-                      size={14}
-                      className={`transition-transform duration-200 ${isActive
-                        ? 'text-sky-600 -translate-x-0.5'
-                        : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 text-slate-400'
-                        }`}
-                    />
-
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeBar"
-                        className="absolute right-0 top-2 bottom-2 w-1 rounded-l-full bg-sky-600"
-                      />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
+          <button
+            type="button"
+            onClick={close}
+            aria-label="إغلاق القائمة"
+            className="rounded-xl p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white lg:hidden"
+          >
+            <X className="size-5" />
+          </button>
         </div>
 
-        {/* بطاقة الحساب وحالة النظام */}
-        <div className="space-y-3 pt-4">
-          <div className="rounded-2xl border border-sky-100/80 bg-slate-50/70 p-3.5 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-200 bg-sky-100/60 font-bold text-sky-800">
-                  <ShieldCheck size={18} />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900">
-                    {admin?.name || admin?.username || 'المسؤول'}
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    @{admin?.username || 'admin'}
-                  </div>
-                </div>
-              </div>
+        {/* قائمة روابط التنقل مع تمرير داخلي نظيف */}
+        <div className="mt-4 flex flex-1 flex-col overflow-y-auto pr-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <p className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            مساحة العمل
+          </p>
+          <nav className="flex flex-col gap-1" aria-label="القائمة الرئيسية">
+            {visibleItems.map(({ name, path, icon: Icon, label }) => {
+              const count = path === '/search' ? liveCounts.patients : path === '/appointments' ? liveCounts.appointments : null;
+              return (
+              <NavLink key={path} end={path === '/'} to={path} onClick={close} className="group">
+                {({ isActive }) => (
+                  <motion.div
+                    whileHover={{ x: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all duration-200 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 text-white shadow-md shadow-sky-900/20'
+                        : 'text-slate-600 hover:bg-sky-50 hover:text-sky-800'
+                    }`}
+                  >
+                    <span
+                      className={`flex size-7 items-center justify-center rounded-lg transition ${
+                        isActive
+                          ? 'bg-white/20'
+                          : 'bg-sky-50 text-sky-700 group-hover:bg-sky-100 group-hover:text-sky-900'
+                      }`}
+                    >
+                      <Icon className="size-3.5" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {name}
+                      <small
+                        className={`block text-[8px] font-normal ${
+                          isActive ? 'text-white/75' : 'text-slate-400'
+                        }`}
+                      >
+                        {label}
+                      </small>
+                    </span>
+                    {count !== null && (
+                      <span
+                        className={`rounded-md px-1.5 py-0.5 text-[9px] ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-sky-50 text-sky-700'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                    <ChevronLeft
+                      className={`size-3.5 transition ${
+                        isActive ? 'text-white/75' : 'text-slate-300 opacity-0 group-hover:opacity-100'
+                      }`}
+                    />
+                  </motion.div>
+                )}
+              </NavLink>
+              );
+            })}
+          </nav>
 
+          <div className="mt-3 border-t border-slate-100 pt-2">
+            <p className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              الحماية والإدارة
+            </p>
+            {hasPermission('settings') && <NavLink
+              to="/settings"
+              onClick={close}
+              className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-600 transition hover:bg-teal-50/70 hover:text-teal-700"
+            >
+              <span className="flex size-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-teal-100 group-hover:text-teal-700">
+                <ShieldCheck className="size-3.5" />
+              </span>
+              <span className="flex-1 truncate">الأمان والخصوصية</span>
+            </NavLink>}
+            {admin?.role === 'developer' && <><NavLink to="/developer" onClick={close} className="group mt-1 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-600 transition hover:bg-teal-50/70 hover:text-teal-700"><span className="flex size-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><Settings className="size-3.5" /></span><span className="flex-1 truncate">لوحة المطوّر</span></NavLink><NavLink to="/developer-control" onClick={close} className="group mt-1 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-600 transition hover:bg-teal-50/70 hover:text-teal-700"><span className="flex size-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><Settings className="size-3.5" /></span><span className="flex-1 truncate">صلاحيات واسم النظام</span></NavLink></>}
+          </div>
+        </div>
+
+        {/* الجزء السفلي: حالة الحساب والاشتراك وتسجيل الخروج */}
+        <div className="mt-auto pt-2">
+          <div className="rounded-xl border border-slate-900/10 bg-gradient-to-br from-slate-900 to-teal-950 p-2.5 text-white shadow-lg shadow-teal-950/10">
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-300 to-sky-400 text-xs font-black text-teal-950">
+                {admin?.name?.slice(0, 2) || 'دأ'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-bold">{admin?.name || admin?.username || 'المسؤول'}</p>
+                <p className="truncate text-[9px] text-white/50">@{admin?.username || 'admin'}</p>
+              </div>
               {logout && (
                 <button
+                  type="button"
                   onClick={logout}
                   title="تسجيل الخروج"
-                  className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                  className="rounded-lg p-1.5 text-white/50 transition hover:bg-rose-400/20 hover:text-rose-200"
                 >
-                  <LogOut size={16} />
+                  <LogOut className="size-3.5" />
                 </button>
               )}
             </div>
 
-            <div className="mt-3 flex items-center justify-between border-t border-slate-200/50 pt-2 text-[11px]">
-              <span className="flex items-center gap-1.5 font-medium text-slate-500">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-                متصل بالسحابة
-              </span>
-              <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-bold text-sky-700 shadow-2xs">
-                V 2.0
+            <div className="mt-2 border-t border-white/10 pt-1.5 text-[9px] text-white/60">
+              انتهاء الاشتراك:{' '}
+              <span className="font-bold text-teal-200" dir="ltr">
+                {subscription?.expiresAt
+                  ? new Date(subscription.expiresAt).toLocaleDateString('ar-EG')
+                  : 'جارٍ التحقق...'}
               </span>
             </div>
-            <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50/70 p-2 text-[10px] text-amber-800">
-              <b>انتهاء الاشتراك</b>
-              <span className="mt-1 block" dir="ltr">{subscription?.expiresAt ? new Date(subscription.expiresAt).toLocaleString('ar-EG') : 'جارٍ التحقق...'}</span>
-            </div>
-             <div className="flex items-center gap-1 text-center text-[11px] text-slate-400">
-                <span>تم التطوير بواسطة</span>
-                <a
-                  href="https://m7mdmstfa4422.github.io/MoMustafa/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-sky-600 transition-colors hover:text-sky-700 hover:underline"
-                >
-                  Mohamed
-                </a>
-              </div>
           </div>
         </div>
       </aside>
     </>
   );
 }
+
+export { PulseLogo };
+export const SidebarMenuIcon = Menu;

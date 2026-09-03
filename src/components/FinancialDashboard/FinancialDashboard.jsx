@@ -70,59 +70,61 @@ export default function FinancialDashboard() {
       <div className="mx-auto max-w-7xl space-y-8">
         
         {/* Header with Ambient Glow & Floating Badge */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white p-6 shadow-sm md:p-8"
+      <motion.header 
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+  className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 p-6 text-white shadow-xl shadow-sky-900/15 md:p-8"
+>
+  {/* الإضاءات المتحركة بالخلفية */}
+  <motion.div 
+    animate={{ 
+      scale: [1, 1.25, 1],
+      opacity: [0.15, 0.35, 0.15]
+    }}
+    transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+    className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-cyan-400/30 blur-3xl"
+  />
+  <motion.div 
+    animate={{ 
+      scale: [1, 1.3, 1],
+      opacity: [0.1, 0.3, 0.1]
+    }}
+    transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+    className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-sky-400/25 blur-3xl"
+  />
+
+  <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
+    <div>
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-md">
+        <motion.span
+          animate={{ rotate: [0, 15, -15, 0] }}
+          transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
         >
-          {/* Animated Background Aura */}
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.25, 1],
-              opacity: [0.35, 0.6, 0.35]
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-sky-200/50 blur-3xl"
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.3, 1],
-              opacity: [0.25, 0.5, 0.25]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-cyan-200/40 blur-3xl"
-          />
+          <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+        </motion.span>
+        <span>لوحة المتابعة الذكية الحية</span>
+      </div>
 
-          <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">
-                <motion.span
-                  animate={{ rotate: [0, 15, -15, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-sky-600" />
-                </motion.span>
-                لوحة المتابعة الذكية الحية
-              </div>
-              <h1 className="mt-2 text-2xl font-black text-slate-900 md:text-3xl">
-                التقرير المالي والتشغيلي الموحد
-              </h1>
-              <p className="mt-1 text-xs text-slate-500 md:text-sm">
-                متابعة حية للإيرادات، تدفق المرضى، والنشاط التشغيلي لجميع الفروع
-              </p>
-            </div>
+      <h1 className="mt-3 text-2xl font-black tracking-tight text-white md:text-3xl">
+        التقرير المالي والتشغيلي الموحد
+      </h1>
 
-            {/* Live Indicator */}
-            <div className="flex items-center gap-3 self-start rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-2.5 backdrop-blur-md md:self-auto">
-              <span className="relative flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-sky-600"></span>
-              </span>
-              <span className="text-xs font-bold text-slate-700">تحديث فوري مباشر</span>
-            </div>
-          </div>
-        </motion.header>
+      <p className="mt-1.5 max-w-xl text-xs text-sky-100/90 md:text-sm">
+        متابعة حية للإيرادات، تدفق المرضى، والنشاط التشغيلي لجميع الفروع
+      </p>
+    </div>
+
+    {/* مؤشر التحديث اللحظي */}
+    <div className="flex items-center gap-3 self-start rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-md md:self-auto shadow-sm">
+      <span className="relative flex h-3 w-3">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+        <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+      </span>
+      <span className="text-xs font-bold text-white">تحديث فوري مباشر</span>
+    </div>
+  </div>
+</motion.header>
 
         {/* Stats Grid */}
         <motion.div 

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const visitSchema = new mongoose.Schema({
   patient: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
+  appointment: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment', default: null },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
   clinic: { type: mongoose.Schema.Types.ObjectId, ref: 'Clinic', required: true },
   title: { type: String, required: true, trim: true },

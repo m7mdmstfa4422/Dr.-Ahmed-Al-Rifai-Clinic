@@ -156,49 +156,41 @@ export default function Reports() {
       <div className="mx-auto max-w-7xl space-y-8">
         
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white p-6 shadow-sm md:p-8"
-        >
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-sky-200/50 blur-3xl"
-          />
-          <motion.div 
-            animate={{ scale: [1, 1.25, 1], opacity: [0.2, 0.45, 0.2] }}
-            transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-200/40 blur-3xl"
-          />
+      <motion.header
+  initial={{ opacity: 0, y: -15 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4 }}
+  className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 p-6 text-white shadow-xl shadow-sky-900/15 md:p-8"
+>
+  {/* الإضاءات المتحركة بالخلفية */}
+  <motion.div 
+    animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.35, 0.15] }}
+    transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+    className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-cyan-400/30 blur-3xl"
+  />
+  <motion.div 
+    animate={{ scale: [1, 1.25, 1], opacity: [0.1, 0.3, 0.1] }}
+    transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+    className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-sky-400/25 blur-3xl"
+  />
 
-          <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800">
-                <Sparkles className="h-3.5 w-3.5 text-sky-600" /> محرك الاستعلام والتقارير
-              </div>
-              <h1 className="mt-2 text-2xl font-black text-slate-900 md:text-3xl">
-                التقارير المالية والتشغيلية المخصصة
-              </h1>
-              <p className="mt-1 text-xs text-slate-500 md:text-sm">
-                تصفية شاملة للإيرادات وحركة المراجعين بدقة متناهية
-              </p>
-            </div>
+  <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
+    <div>
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-md">
+        <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+        <span>محرك الاستعلام والتقارير</span>
+      </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={exportToCSV}
-              disabled={displayRows.length === 0}
-              className="flex items-center justify-center gap-2 self-start rounded-2xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 py-3 font-bold text-white shadow-md shadow-sky-900/15 transition-all hover:brightness-105 disabled:opacity-50 md:self-auto"
-            >
-              <Download className="h-4 w-4" />
-              <span>تصدير ملف Excel</span>
-            </motion.button>
-          </div>
-        </motion.header>
+      <h1 className="mt-3 text-2xl font-black tracking-tight text-white md:text-3xl">
+        التقارير المالية والتشغيلية المخصصة
+      </h1>
 
+      <p className="mt-1.5 max-w-xl text-xs text-sky-100/90 md:text-sm">
+        تصفية شاملة للإيرادات وحركة المراجعين بدقة متناهية
+      </p>
+    </div>
+  </div>
+</motion.header>
         {/* Filters Form */}
         <motion.form
           initial={{ opacity: 0, y: 15 }}

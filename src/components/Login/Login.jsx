@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthContext } from '../../AuthProvider';
-import img from '../../assets/logo.png';
+import img from '/docpoint-logo.svg';
 import { api } from '../../api';
 import {
   User,
@@ -57,7 +57,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[#F8FAFC] p-4 text-slate-800 antialiased" dir="rtl">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-100 p-3 text-slate-800 antialiased sm:p-6" dir="rtl">
 
       {/* هالات خلفية تفاعلية ومتحركة باستمرار */}
       <motion.div
@@ -84,18 +84,14 @@ export default function Login() {
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative z-10 grid h-full max-h-[640px] w-full max-w-5xl grid-cols-1 overflow-hidden rounded-[2.5rem] border border-sky-100 bg-white/95 shadow-2xl shadow-sky-950/10 backdrop-blur-2xl md:grid-cols-2"
+        className="relative z-10 grid min-h-[620px] w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-2xl shadow-sky-950/15 md:grid-cols-[1.05fr_0.95fr] md:rounded-[2.5rem]"
       >
 
         {/* الجانب الأيمن: صورة طبية تفاعلية ومعلومات المنظومة */}
-        <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-900 p-8 text-white md:flex">
-          {/* صورة خلفية طبية مدمجة مع طبقة تظليل ناعمة */}
-          <img
-            src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80"
-            alt="العيادة الطبية"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-30 mix-blend-luminosity"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#061426] via-[#081e3a]/80 to-transparent" />
+        <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-sky-950 via-sky-900 to-cyan-800 p-10 text-white md:flex">
+          <div className="absolute -left-24 -top-20 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl" />
+          <div className="absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-sky-400/20 blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.12] [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px]" />
 
           {/* رأس القسم البصري */}
           <div className="relative z-10 flex items-center justify-between">
@@ -114,12 +110,9 @@ export default function Login() {
 
           {/* محتوى وسطي وترحيبي */}
           <div className="relative z-10 my-auto space-y-4">
-            <h2 className="text-3xl font-black leading-snug tracking-tight text-white lg:text-4xl">
-              عيادة د. أحمد الرفاعي
-            </h2>
-            <p className="max-w-sm text-xs leading-relaxed text-sky-100/75 lg:text-sm">
-              إدارة شاملة وسريعة لملفات المرضى، سجل الكشوفات، والإيرادات المالية في بيئة آمنة ومشفرة.
-            </p>
+            <img src={img} alt="DocPoint" className="mb-5 h-16 w-20 object-contain object-right brightness-0 invert" />
+            <h2 className="text-3xl font-black leading-snug tracking-tight text-white lg:text-4xl">إدارة العيادة،<br />بهدوء ووضوح.</h2>
+            <p className="max-w-sm text-sm leading-relaxed text-sky-100/80">ملفات المرضى والمواعيد وسجل الزيارات في مكان واحد آمن وسهل الاستخدام.</p>
 
             <div className="space-y-2 pt-2 text-xs font-medium text-sky-100/90">
               <div className="flex items-center gap-2">
@@ -141,18 +134,18 @@ export default function Login() {
         </div>
 
         {/* الجانب الأيسر: نموذج تسجيل الدخول متموضع في المنتصف */}
-        <div className="flex flex-col justify-between p-6 sm:p-10 overflow-y-auto">
+        <div className="flex flex-col justify-between overflow-y-auto p-6 sm:p-10 md:p-12">
 
-          <div className="my-auto flex flex-col justify-center w-full max-w-sm mx-auto">
+          <div className="my-auto flex w-full max-w-sm flex-col justify-center self-center">
             {/* الشعار والعنوان */}
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-8 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div>
-                  <img src={img} alt="Clinic Logo" className="h-12 w-16   object-center " />
+                  <img src={img} alt="Clinic Logo" className="h-12 w-14 object-contain" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-black text-slate-900">تسجيل الدخول</h1>
-                  <p className="text-[11px] font-semibold text-sky-700">لوحة التحكم الإدارية</p>
+                  <h1 className="text-xl font-black text-slate-900">مرحبًا بعودتك</h1>
+                  <p className="mt-0.5 text-[11px] font-semibold text-sky-700">سجّل الدخول للمتابعة إلى لوحة العيادة</p>
                 </div>
               </div>
             </div>
@@ -185,8 +178,9 @@ export default function Login() {
                     required
                     value={formData.username}
                     onChange={handleChange}
-                    placeholder="Username"
-                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/60 py-3 pr-10 pl-4 text-sm text-slate-800 transition-all placeholder:text-slate-400 focus:border-sky-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+                    placeholder="أدخل اسم المستخدم"
+                    autoComplete="username"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pr-11 pl-4 text-sm text-slate-800 transition-all placeholder:text-slate-400 focus:border-sky-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100"
                   />
                   <User size={18} className="absolute right-3.5 text-slate-400" />
                 </div>
@@ -208,8 +202,9 @@ export default function Login() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="••••••••"
-                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/60 py-3 pr-10 pl-10 text-sm text-slate-800 transition-all placeholder:text-slate-400 focus:border-sky-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+                    placeholder="أدخل كلمة المرور"
+                    autoComplete="current-password"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pr-11 pl-11 text-sm text-slate-800 transition-all placeholder:text-slate-400 focus:border-sky-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100"
                   />
                   <Lock size={18} className="absolute right-3.5 text-slate-400" />
                   <button
@@ -244,7 +239,7 @@ export default function Login() {
                 whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={isLoading}
-                className="group relative mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-sky-600 via-sky-700 to-indigo-900 py-3.5 text-sm font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+                className="group relative mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-cyan-800 py-3.5 text-sm font-bold text-white shadow-lg shadow-sky-900/20 transition-all hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isLoading ? (
                   <Loader2 size={18} className="animate-spin text-white" />
